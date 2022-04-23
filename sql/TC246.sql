@@ -56,4 +56,35 @@ CREATE ROLE RL_THANHTRA;
 EXEC grant_select('QLKCB', 'RL_THANHTRA');
 EXEC grant_role_to_user_from_nhanvien('Thanh tra', 'RL_THANHTRA');
 
--- tc#4
+-------------------------------------------------------------------------------------------------------------------------------
+-- TC3
+CREATE OR REPLACE FUNCTION VPD_HSBA (p_schema VARCHAR2, p_obj VARCHAR2)
+RETURN VARCHAR2
+AS
+    p_username VARCHAR2(128);
+    p_vai_tro NVARCHAR2(20);
+    p_csyt VARCHAR2(4);
+BEGIN
+    IF (SYS_CONTEXT('userenv', 'ISDBA')) THEN 
+        RETURN '';
+    END IF;
+    
+    p_username := SYS_CONTEXT('userenv', 'SESSION_USER');
+    SELECT VAITRO, CSYT INTO p_vai_tro, p_csyt FROM NHANVIEN WHERE NHANVIEN.USERNAME = p_username;
+    IF (p_vai_tro = n'C? s? y t?') THEN
+        RETURN 'CSYT = ' || p_csyt || ' AND TO_NUMBER(TO_CHAR(NGAY, ' || char(39) || 'DD' || char(39) || ')) > 4 AND TO_NUMBER(TO_CHAR(NGAY, ' || char(39) || 'DD' || char(39) || ')) < 28';
+    END IF;
+    RETURN '';
+END;
+/
+BEGIN
+    dbms_rls.add_policy (
+    object_schema => 'QLKCB',
+    object_name => 'HSBA',
+    policy_name => 'QLKCB_HSBA',
+    function_schema => 'VPD_HSBA',
+    statement_types => 'select', 'insert', 'delete'
+    );
+END;
+
+
