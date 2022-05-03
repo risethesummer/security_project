@@ -210,7 +210,7 @@ BEGIN
     THEN
         enc_key := DBMS_CRYPTO.RANDOMBYTES(32);
         enc_ma_key := UTL_RAW.CAST_TO_RAW(MANV_IN || UTL_RAW.CAST_TO_VARCHAR2(UTL_RAW.REVERSE(UTL_RAW.CAST_TO_RAW(MANV_IN))) || pad); 
-        stored_enc_ma := DBMS_CRYPTO.ENCRYPT(src => UTL_I18N.STRING_TO_RAW(MANV_IN, 'AL32UTF8'),
+        stored_enc_ma := DBMS_CRYPTO.ENCRYPT(src => UTL_RAW.CAST_TO_RAW(MANV_IN),
                                                     TYP => l_mod_cbc,
                                                     key => enc_ma_key); 
         stored_enc_key := DBMS_CRYPTO.ENCRYPT(src => enc_key,
@@ -399,6 +399,44 @@ BEGIN
                                     TYP => alg_grade,
                                     key => dec_key));
     END IF;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE QLKCB.CHINHSUA_NHANVIEN_CMND (
+    MA_IN VARCHAR2, CMND VARCHAR2
+)
+IS
+    dec_key RAW(48) := NULL;
+    raw_cmnd RAW(16) := NULL;
+    pad char(4) := 'KEYP';
+    alg_grade       pls_integer := DBMS_CRYPTO.ENCRYPT_AES256
+                                   + DBMS_CRYPTO.CHAIN_CBC
+                                   + DBMS_CRYPTO.PAD_PKCS5;
+BEGIN
+    dec_key := c##apdsgvkyp3s5v8y.LAY_KEY(MA_IN, pad);
+    raw_cmnd := DBMS_CRYPTO.ENCRYPT(src => UTL_RAW.CAST_TO_RAW(CMND),
+                                TYP => alg_grade,
+                                key => dec_key);
+    UPDATE QLKCB.NHANVIEN SET CMND = raw_cmnd WHERE MANV = MA_IN;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE QLKCB.CHINHSUA_BENHNHAN_CMND (
+    MA_IN VARCHAR2, CMND VARCHAR2
+)
+IS
+    dec_key RAW(48) := NULL;
+    raw_cmnd RAW(16) := NULL;
+    pad char(2) := 'KE';
+    alg_grade       pls_integer := DBMS_CRYPTO.ENCRYPT_AES256
+                                   + DBMS_CRYPTO.CHAIN_CBC
+                                   + DBMS_CRYPTO.PAD_PKCS5;
+BEGIN
+    dec_key := c##apdsgvkyp3s5v8y.LAY_KEY(MA_IN, pad);
+    raw_cmnd := DBMS_CRYPTO.ENCRYPT(src => UTL_RAW.CAST_TO_RAW(CMND),
+                                TYP => alg_grade,
+                                key => dec_key);
+    UPDATE QLKCB.BENHNHAN SET CMND = raw_cmnd WHERE MABN = MA_IN;
 END;
 /
 
