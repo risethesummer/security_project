@@ -1,13 +1,13 @@
 package administrator.gui.overview;
 
 import administrator.dao.DBObject;
-import administrator.gui.table.cells.ICell;
-import administrator.gui.table.row.NColumnsPanel;
+import common.gui.table.cells.ICell;
+import common.gui.table.row.NColumnsPanel;
 
 import java.awt.*;
 
 /**
- * administrator.gui.table
+ * common.gui.table
  * Created by NhatLinh - 19127652
  * Date 3/12/2022 - 11:16 PM
  * Description: ...

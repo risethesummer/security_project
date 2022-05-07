@@ -27,11 +27,11 @@ public class ViewRoleInsideFrame extends ViewInsideObjectsFrame {
         JPanel inFrame = new JPanel(new GridLayout(1, 2));
         JPanel user = new JPanel(new BorderLayout());
         JScrollPane userScroll = new JScrollPane(showObjects, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        user.add(new JLabel("User"), BorderLayout.PAGE_START);
+        user.add(new JTextField("User"), BorderLayout.PAGE_START);
         user.add(userScroll, BorderLayout.CENTER);
         JPanel role = new JPanel(new BorderLayout());
         JScrollPane roleScroll = new JScrollPane(showRoles, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        role.add(new JLabel("Role"), BorderLayout.PAGE_START);
+        role.add(new JTextField("Role"), BorderLayout.PAGE_START);
         role.add(roleScroll, BorderLayout.CENTER);
         inFrame.add(user);
         inFrame.add(role);

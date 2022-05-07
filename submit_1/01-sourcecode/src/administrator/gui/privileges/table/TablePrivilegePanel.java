@@ -4,7 +4,7 @@ import administrator.dao.permissions.ActionPermission;
 import administrator.dao.permissions.DetailedActionPermission;
 import administrator.dao.permissions.GeneralPermission;
 import administrator.dao.permissions.PermissionType;
-import administrator.gui.table.cells.LabelCell;
+import common.gui.table.cells.LabelCell;
 
 import javax.swing.*;
 import java.awt.*;

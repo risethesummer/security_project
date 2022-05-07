@@ -4,8 +4,8 @@ import administrator.dao.table.property.Property;
 import administrator.dao.table.property.PropertyFactory;
 import administrator.dao.table.property.References;
 import administrator.dbHandler.table.ITableHandler;
-import administrator.gui.table.cells.*;
-import administrator.gui.table.row.NColumnsPanel;
+import common.gui.table.cells.*;
+import common.gui.table.row.NColumnsPanel;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
- * administrator.gui.table.row
+ * common.gui.table.row
  * Created by NhatLinh - 19127652
  * Date 3/26/2022 - 11:09 PM
  * Description: ...

@@ -5,9 +5,9 @@ import administrator.dbHandler.IDBAHandler;
 import administrator.dbHandler.table.ITableHandler;
 import administrator.gui.overview.DBObjectRowPanel;
 import administrator.gui.overview.viewDetails.IShowDetails;
-import administrator.gui.table.ITablePanel;
-import administrator.gui.table.TablePanel;
-import administrator.gui.table.cells.*;
+import common.gui.table.ITablePanel;
+import common.gui.table.TablePanel;
+import common.gui.table.cells.*;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

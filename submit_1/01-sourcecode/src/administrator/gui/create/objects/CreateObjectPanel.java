@@ -2,9 +2,8 @@ package administrator.gui.create.objects;
 
 import administrator.dao.DBObject;
 import administrator.dbHandler.IDBAHandler;
-import administrator.gui.privileges.table.SearchTablePanel;
 import common.gui.ImageRepository;
-import administrator.gui.table.row.AddRowAsync;
+import common.gui.table.row.AddRowAsync;
 import common.gui.ButtonImage;
 import common.gui.UserPanel;
 import javax.swing.*;

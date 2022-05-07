@@ -3,9 +3,9 @@ package administrator.gui.overview.all;
 import administrator.dao.DBObject;
 import administrator.dbHandler.IDBAHandler;
 import administrator.gui.overview.viewDetails.ViewTableDetailsFrame;
-import administrator.gui.table.cells.ButtonCell;
-import administrator.gui.table.cells.ICell;
-import administrator.gui.table.cells.LabelCell;
+import common.gui.table.cells.ButtonCell;
+import common.gui.table.cells.ICell;
+import common.gui.table.cells.LabelCell;
 
 /**
  * administrator.gui.overview

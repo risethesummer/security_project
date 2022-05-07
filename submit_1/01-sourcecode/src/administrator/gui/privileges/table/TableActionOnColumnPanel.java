@@ -3,12 +3,10 @@ package administrator.gui.privileges.table;
 import administrator.dao.permissions.ActionPermission;
 import administrator.dao.permissions.DetailedActionPermission;
 import administrator.dao.permissions.PermissionType;
-import administrator.gui.table.cells.CheckBoxCell;
+import common.gui.table.cells.CheckBoxCell;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**

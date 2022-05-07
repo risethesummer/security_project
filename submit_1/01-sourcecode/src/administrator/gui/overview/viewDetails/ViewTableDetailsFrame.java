@@ -5,9 +5,9 @@ import administrator.dao.table.property.NumberProperty;
 import administrator.dao.table.property.Property;
 import administrator.dao.table.property.SizedProperty;
 import administrator.gui.overview.DBObjectRowPanel;
-import administrator.gui.table.TablePanel;
-import administrator.gui.table.cells.*;
-import administrator.gui.table.row.NColumnsPanel;
+import common.gui.table.TablePanel;
+import common.gui.table.cells.*;
+import common.gui.table.row.NColumnsPanel;
 
 import javax.swing.*;
 import java.awt.*;

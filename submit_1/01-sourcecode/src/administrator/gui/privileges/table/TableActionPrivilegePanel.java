@@ -2,8 +2,8 @@ package administrator.gui.privileges.table;
 
 import administrator.dao.permissions.ActionPermission;
 import administrator.dao.permissions.PermissionType;
-import administrator.gui.table.cells.CheckBoxCell;
-import administrator.gui.table.cells.LabelCell;
+import common.gui.table.cells.CheckBoxCell;
+import common.gui.table.cells.LabelCell;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -65,7 +65,7 @@ public class TableActionPrivilegePanel {
     {
         for (int i = 0; i < count; i++)
             addComponents.add(Box.createRigidArea(new Dimension(20, 20)));
-            //addComponents.add(new JLabel("None"));
+            //addComponents.add(new JTextField("None"));
     }
 
     public boolean checkNotGranted(JCheckBox checkBox)

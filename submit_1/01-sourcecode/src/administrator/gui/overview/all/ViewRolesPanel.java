@@ -5,9 +5,9 @@ import administrator.dbHandler.roleAndUser.IRoleHandler;
 import administrator.dbHandler.table.ITableHandler;
 import administrator.gui.overview.viewDetails.ViewRoleInsideFrame;
 import administrator.gui.privileges.RolePrivilegeFrame;
-import administrator.gui.table.cells.ButtonCell;
-import administrator.gui.table.cells.ICell;
-import administrator.gui.table.cells.LabelCell;
+import common.gui.table.cells.ButtonCell;
+import common.gui.table.cells.ICell;
+import common.gui.table.cells.LabelCell;
 
 /**
  * administrator.gui

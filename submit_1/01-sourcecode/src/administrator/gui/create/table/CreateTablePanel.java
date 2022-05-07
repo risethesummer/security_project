@@ -4,11 +4,10 @@ import administrator.dao.table.Table;
 import administrator.dao.table.property.Property;
 import administrator.dbHandler.IDBAHandler;
 import administrator.dbHandler.table.ITableHandler;
-import administrator.gui.table.ITablePanel;
-import administrator.gui.table.TablePanel;
-import administrator.gui.table.cells.ICell;
-import administrator.gui.table.cells.LabelCell;
-import administrator.gui.table.row.IRow;
+import common.gui.table.ITablePanel;
+import common.gui.table.TablePanel;
+import common.gui.table.cells.ICell;
+import common.gui.table.cells.LabelCell;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
 import javax.swing.*;
