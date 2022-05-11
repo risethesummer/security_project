@@ -34,17 +34,19 @@ public class NewDocumentInformationPanel extends JPanel {
     private final ComboBoxCell departmentID = new ComboBoxCell();
     private final ComboBoxCell facilityID = new ComboBoxCell();
     private final JTextField conclusion = new JTextField("");
-    private final ITablePanel services = new TablePanel(new ICell[]{
+ /*   private final ITablePanel services = new TablePanel(new ICell[]{
             new LabelCell("Service ID"),
             new LabelCell("Date"),
             new LabelCell("KTV ID"),
             new LabelCell("Result"),
             new LabelCell("Delete")
     });
-
+*/
     public NewDocumentInformationPanel(Predicate<Document> createDocument,
-                                       Supplier<Collection<String>> onGetServices,
-                                       Supplier<Collection<String>> onGetKTVs)
+                                       Supplier<Collection<String>> onGetPatients,
+                                       Supplier<Collection<String>> onGetDoctors,
+                                       Supplier<Collection<String>> onGetDepartments,
+                                       Supplier<Collection<String>> onGetFacilities)
     {
         super();
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -56,8 +58,12 @@ public class NewDocumentInformationPanel extends JPanel {
         MainFrame.addComponent(this, departmentID, "Department ID");
         MainFrame.addComponent(this, facilityID, "Facility ID");
         MainFrame.addComponent(this, conclusion, "Conclusion");
-        JButton addServiceBtn = new JButton("Add service");
-        addServiceBtn.addActionListener(e -> {
+        patientID.setDropEvent(onGetPatients);
+        doctorID.setDropEvent(onGetDoctors);
+        departmentID.setDropEvent(onGetDepartments);
+        facilityID.setDropEvent(onGetFacilities);
+        //JButton addServiceBtn = new JButton("Add service");
+      /*  addServiceBtn.addActionListener(e -> {
             NewDocumentServiceRow row = new NewDocumentServiceRow(
                     onGetServices,
                     onGetKTVs,
@@ -66,30 +72,48 @@ public class NewDocumentInformationPanel extends JPanel {
             SwingUtilities.invokeLater(() -> services.addRow(row));
         });
         MainFrame.addComponent(this, addServiceBtn);
-        add(services.getAddComponent());
+        add(services.getAddComponent());*/
         JButton createBtn = new JButton("Create the document");
+        createBtn.setAlignmentX(CENTER_ALIGNMENT);
         createBtn.addActionListener(e -> {
             if (!isInputNotValid())
             {
-                Document document = getDocument();
-                if (createDocument.test(document))
-                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, "Create the document successfully"));
-                else
-                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, "Failed to create the document"));
+                Object[] options = {
+                        "Yes, I want to create the document",
+                        "No, I don't"};
+                int n = JOptionPane.showOptionDialog(this,
+                        "Do you really want to create the document?",
+                        "Confirm",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        options,
+                        options[0]);
+                if (n == 0)
+                {
+                    Document document = getDocument();
+                    if (createDocument.test(document))
+                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, "Create the document successfully"));
+                    else
+                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, "Failed to create the document"));
+                }
             }
+            else
+                SwingUtilities.invokeLater(() ->
+                        JOptionPane.showMessageDialog(this, "You need to fill out all the fields"));
         });
         MainFrame.addComponent(this, createBtn);
     }
 
     public boolean isInputNotValid()
     {
-        boolean check = id.getText().isBlank() ||
+        return id.getText().isBlank() ||
                         patientID.getSelectedIndex() == -1 ||
                         diagnose.getText().isBlank() ||
                         doctorID.getSelectedIndex() == -1 ||
                         departmentID.getSelectedIndex() == -1 ||
                         facilityID.getSelectedIndex() == -1;
-        if (!check)
+       /* if (!check)
         {
             SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, "You have to fulfil all the fields to create a new document!"));
             return true;
@@ -108,14 +132,14 @@ public class NewDocumentInformationPanel extends JPanel {
             catch (Exception e)
             {
             }
-        }
+        }*/
 
-        return false;
+        //return false;
     }
 
     public Document getDocument()
     {
-        List<DocumentService> inputServices = new ArrayList<>();
+/*        List<DocumentService> inputServices = new ArrayList<>();
         for (Component c : services.getComponents())
         {
             try
@@ -127,7 +151,7 @@ public class NewDocumentInformationPanel extends JPanel {
             catch (Exception e)
             {
             }
-        }
+        }*/
         return new Document(id.getText(),
                 (String)patientID.getSelectedItem(),
                 Date.from(Instant.now()),
@@ -136,6 +160,6 @@ public class NewDocumentInformationPanel extends JPanel {
                 (String)departmentID.getSelectedItem(),
                 (String)facilityID.getSelectedItem(),
                 conclusion.getText(),
-                inputServices);
+                null);
     }
 }

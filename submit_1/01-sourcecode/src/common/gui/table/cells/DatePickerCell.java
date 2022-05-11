@@ -5,12 +5,15 @@ import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.EventListener;
 import java.util.Properties;
 
 /**
@@ -27,6 +30,16 @@ public class DatePickerCell implements ICell {
 
     private final UtilDateModel dateModel = new UtilDateModel();
     private final JDatePickerImpl picker;
+    private final ChangeListener changeListener = new ChangeListener() {
+        @Override
+        public void stateChanged(ChangeEvent e) {
+            Date now = Date.from(Instant.now());
+            Calendar c = Calendar.getInstance();
+            c.setTime(now);
+            if (!dateModel.getValue().after(now))
+                dateModel.setValue(c.getTime());
+        }
+    };
 
     public DatePickerCell() {
         Properties p = new Properties();
@@ -37,11 +50,8 @@ public class DatePickerCell implements ICell {
         Date now = Date.from(Instant.now());
         Calendar c = Calendar.getInstance();
         c.setTime(now);
-        dateModel.addChangeListener(e -> {
-            if (!dateModel.getValue().after(now))
-                dateModel.setValue(c.getTime());
-        });
         dateModel.setValue(c.getTime());
+        dateModel.addChangeListener(changeListener);
 
         JDatePanelImpl datePanel = new JDatePanelImpl(dateModel, p);
         picker = new JDatePickerImpl(datePanel, new JFormattedTextField.AbstractFormatter() {
@@ -60,6 +70,12 @@ public class DatePickerCell implements ICell {
                 return "";
             }
         });
+    }
+
+    public DatePickerCell(boolean notAdd)
+    {
+        this();
+        dateModel.removeChangeListener(changeListener);
     }
 
     @Override

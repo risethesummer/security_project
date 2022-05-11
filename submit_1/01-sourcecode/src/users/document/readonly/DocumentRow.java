@@ -1,5 +1,6 @@
 package users.document.readonly;
 
+import common.gui.table.cells.ButtonCell;
 import common.gui.table.cells.ICell;
 import common.gui.table.cells.LabelCell;
 import common.gui.table.row.NColumnsPanel;
@@ -24,7 +25,7 @@ public class DocumentRow extends NColumnsPanel {
                 new LabelCell(document.date().toString()),
                 new LabelCell(document.diagnose()),
                 new LabelCell(document.conclusion()),
-                new LabelCell("Details", callback)
+                new ButtonCell("Details", callback)
         });
         id = document.id();
     }

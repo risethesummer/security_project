@@ -26,8 +26,10 @@ public abstract class RecordListPanel extends SearchPanel {
         this.getRecords = getRecords;
         this.recordView = recordView;
         this.listPanel = new TablePanel(listTitles);
-        this.recordView.setBackCallback(() -> setMainSection(this.listPanel.getAddComponent()));
-        setMainSection(this.listPanel.getAddComponent());
+        if (this.recordView != null)
+            this.recordView.setBackCallback(() -> addOrigin(this.listPanel.getAddComponent()));
+        addOrigin(this.listPanel.getAddComponent());
+        reload();
     }
 
     @Override
@@ -35,14 +37,21 @@ public abstract class RecordListPanel extends SearchPanel {
     {
         Iterable<DBRecord> records = getRecords.get();
         listPanel.clearRows();
-        for (DBRecord r : records)
+        if (records != null)
         {
-            IRow row = getRow(r, () -> {
-                recordView.setRecord(r);
-                setMainSection(recordView);
-            });
-            listPanel.addRow(row);
+            for (DBRecord r : records)
+            {
+                IRow row = getRow(r, () -> {
+                    if (recordView != null)
+                    {
+                        recordView.setRecord(r);
+                        setMainSection(recordView);
+                    }
+                });
+                listPanel.addRow(row);
+            }
         }
+        listPanel.updateUI();
     }
 
     protected abstract IRow getRow(DBRecord DBRecord, Runnable detailCallback);

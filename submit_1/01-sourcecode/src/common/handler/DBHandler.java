@@ -33,21 +33,23 @@ public class DBHandler {
                 (dbURL, user, password);
     }
 
-    public boolean loginAsDBA(String userName, String password)
+    public String login(String userName, String password)
     {
         try
         {
             try (Connection conn = getConnection(userName, password);
-                 PreparedStatement statement = conn.prepareStatement("SELECT SYS_CONTEXT ('USERENV', 'ISDBA') FROM DUAL");
-                 ResultSet res = statement.executeQuery())
+                 CallableStatement statement = conn.prepareCall("{CALL SYS.LAY_VAI_TRO(?)}"))
             {
-                return res.next();
+                statement.registerOutParameter(1, Types.NVARCHAR);
+                statement.execute();
+                Object role = statement.getObject(1);
+                return role == null ? null : (String)role;
             }
         }
         catch (SQLException s)
         {
             s.printStackTrace();
-            return false;
+            return null;
         }
     }
 

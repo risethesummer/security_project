@@ -2,21 +2,10 @@ package users.document.readonly;
 
 import common.gui.table.cells.*;
 import common.gui.table.row.NColumnsPanel;
-import org.jdatepicker.impl.JDatePanelImpl;
-import org.jdatepicker.impl.JDatePickerImpl;
-import org.jdatepicker.impl.UtilDateModel;
 import users.dao.DocumentService;
 
-import javax.swing.*;
 import java.awt.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Properties;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * users.document.service
@@ -34,7 +23,7 @@ public class DocumentServiceRow extends NColumnsPanel {
         super(new ICell[]{
                 new LabelCell(documentService.serviceID()),
                 new LabelCell(documentService.date().toString()),
-                new LabelCell(documentService.ktvID()),
+                new LabelCell(documentService.technicianID()),
                 new LabelCell(documentService.result()),
                 new ButtonCell("Delete", onDel)
         });

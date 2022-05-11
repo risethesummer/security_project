@@ -8,5 +8,5 @@ package users.dao;
  */
 
 import java.util.Date;
-public record DocumentService (String serviceID, Date date, String ktvID, String result){
+public record DocumentService (String serviceID, Date date, String technicianID, String result){
 }

@@ -1,5 +1,6 @@
 package users.patient;
 
+import common.gui.table.cells.ButtonCell;
 import common.gui.table.cells.ICell;
 import common.gui.table.cells.LabelCell;
 import common.gui.table.row.NColumnsPanel;
@@ -22,7 +23,7 @@ public class PatientRow extends NColumnsPanel {
                 new LabelCell(patient.name()),
                 new LabelCell(patient.idCard()),
                 new LabelCell(patient.dob().toString()),
-                new LabelCell("Details", callback)
+                new ButtonCell("Details", callback)
         });
         id = patient.id();
     }

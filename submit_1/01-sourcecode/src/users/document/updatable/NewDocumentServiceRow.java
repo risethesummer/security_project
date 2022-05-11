@@ -21,7 +21,7 @@ import java.util.function.Supplier;
  */
 public class NewDocumentServiceRow extends NColumnsPanel {
 
-    //String serviceID, Date date, String ktvID, String result
+    //String serviceID, Date date, String technicianID, String result
     private final ComboBoxCell serviceIDCbb = new ComboBoxCell();
     private final DatePickerCell date = new DatePickerCell();
     private final ComboBoxCell ktvID = new ComboBoxCell();

@@ -6,7 +6,10 @@ import administrator.dbHandler.table.TableHandler;
 import administrator.dbHandler.table.ViewHandler;
 import administrator.gui.AdminFrame;
 import common.dtos.LoginInformation;
+import common.gui.LoginPanel;
 import common.handler.DBHandler;
+import users.UserFrame;
+import users.dbHandler.DBUserHandler;
 import users.staff.StaffViewPanel;
 
 import javax.swing.*;
@@ -24,7 +27,7 @@ public class MainFrame extends JFrame {
     public MainFrame()
     {
         //getContentPane().add(new LoginPanel(this::login));
-        getContentPane().add(new StaffViewPanel());
+        getContentPane().add(new LoginPanel(this::login));
         setDefaultLookAndFeelDecorated(true);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setPreferredSize(new Dimension(1000, 1000));
@@ -67,19 +70,33 @@ public class MainFrame extends JFrame {
     {
         String username = login.username();
         String password = login.password();
-        if (DBHandler.getInstance().loginAsDBA(username, password))
+        String role = DBHandler.getInstance().login(username, password);
+        if (role != null)
         {
-            TableHandler tableHandler = new TableHandler(username, password);
-            new AdminFrame(
-                    () -> {
-                        setVisible(true);
-                    },
-                    new DBAUserHandler(username, password),
-                    new DBARoleHandler(username, password),
-                    tableHandler,
-                    new ViewHandler(username, password, tableHandler));
-            setVisible(false);
-            return true;
+            DBUserHandler userHandler = new DBUserHandler(username, password);
+            if (role.equals("SYS"))
+            {
+                TableHandler tableHandler = new TableHandler(username, password);
+                new AdminFrame(
+                        () -> setVisible(true),
+                        new DBAUserHandler(username, password),
+                        new DBARoleHandler(username, password),
+                        tableHandler,
+                        new ViewHandler(username, password, tableHandler),
+                        userHandler);
+                setVisible(false);
+                return true;
+            }
+            else
+            {
+                new UserFrame(
+                        () -> setVisible(true),
+                        userHandler,
+                        role
+                );
+                setVisible(false);
+                return true;
+            }
         }
         return false;
     }

@@ -8,6 +8,7 @@ import users.dao.DBRecord;
 import users.dao.Staff;
 import users.dbHandler.DBUserHandler;
 
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -18,9 +19,9 @@ import java.util.function.Supplier;
  */
 public class StaffListPanel extends RecordListPanel {
 
-    public StaffListPanel(Supplier<Iterable<DBRecord>> handler) {
+    public StaffListPanel(Supplier<Iterable<DBRecord>> handler, Predicate<Staff> update) {
         super(handler,
-                new StaffViewPanel(),
+                new StaffViewPanel(update),
                 new ICell[]{
                         new LabelCell("Staff ID"),
                         new LabelCell("Full name"),

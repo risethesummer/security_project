@@ -8,7 +8,7 @@ import java.util.Date;
  * Date 5/5/2022 - 4:42 PM
  * Description: ...
  */
-public record Staff (String id, String name, String sex, Date dob, String idCard,
+public record Staff (String id, String name, String sex, String idCard, Date dob,
                      String homeTown, String phone, String facilityID,
                      String role, String major) implements DBRecord{
 

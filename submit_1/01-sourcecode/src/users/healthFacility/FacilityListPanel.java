@@ -1,5 +1,6 @@
 package users.healthFacility;
 
+import common.gui.table.cells.ButtonCell;
 import common.gui.table.cells.ICell;
 import common.gui.table.cells.LabelCell;
 import common.gui.table.row.IRow;
@@ -10,6 +11,7 @@ import users.dao.Facility;
 import users.dbHandler.DBUserHandler;
 
 import java.awt.*;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -20,14 +22,15 @@ import java.util.function.Supplier;
  */
 public class FacilityListPanel extends RecordListPanel {
 
-    public FacilityListPanel(Supplier<Iterable<DBRecord>> handler) {
+    public FacilityListPanel(Supplier<Iterable<DBRecord>> handler, Predicate<Facility> update) {
         super(handler,
-                null,
+                new FacilityViewPanel(update),
                 new ICell[]{
                         new LabelCell("Facility ID"),
                         new LabelCell("Facility name"),
                         new LabelCell("Facility address"),
-                        new LabelCell("Facility hotline")},
+                        new LabelCell("Facility hotline"),
+                        new LabelCell("Update")},
                 new String[] {"Facility ID"});
     }
 
@@ -38,7 +41,8 @@ public class FacilityListPanel extends RecordListPanel {
                 new LabelCell(facility.id()),
                 new LabelCell(facility.name()),
                 new LabelCell(facility.address()),
-                new LabelCell(facility.phone())
+                new LabelCell(facility.phone()),
+                new ButtonCell("Update", detailCallback)
         }) {
             @Override
             public String getHeader() {

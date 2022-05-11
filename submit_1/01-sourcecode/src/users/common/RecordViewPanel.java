@@ -14,15 +14,20 @@ import java.awt.*;
 public abstract class RecordViewPanel extends JPanel {
 
     private final JButton backBtn = new JButton("Back to list");
+    private final JPanel cardPanel = new JPanel(new BorderLayout());
+
     public RecordViewPanel()
     {
         super(new BorderLayout());
         add(backBtn, BorderLayout.PAGE_START);
+        add(cardPanel, BorderLayout.CENTER);
     }
 
-    public void setMainSection(JPanel mainSection)
+    public void setMainSection(Container mainSection)
     {
-        add(mainSection, BorderLayout.CENTER);
+        cardPanel.removeAll();
+        cardPanel.add(mainSection, BorderLayout.CENTER);
+        cardPanel.updateUI();
     }
 
     public void setBackCallback(Runnable backCallback)

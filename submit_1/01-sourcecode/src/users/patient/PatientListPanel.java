@@ -8,6 +8,7 @@ import users.dao.DBRecord;
 import users.dao.Patient;
 import users.dbHandler.DBUserHandler;
 
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -18,9 +19,9 @@ import java.util.function.Supplier;
  */
 public class PatientListPanel extends RecordListPanel {
 
-    public PatientListPanel(Supplier<Iterable<DBRecord>> handler) {
+    public PatientListPanel(Supplier<Iterable<DBRecord>> handler, Predicate<Patient> update) {
         super(handler,
-                new PatientViewPanel(),
+                new PatientViewPanel(update),
                 new ICell[]{
                     new LabelCell("Patient ID"),
                     new LabelCell("Full name"),

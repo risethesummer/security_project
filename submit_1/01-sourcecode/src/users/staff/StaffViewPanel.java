@@ -7,6 +7,8 @@ import users.dao.Patient;
 import users.dao.Staff;
 import users.patient.PatientInformationPanel;
 
+import java.util.function.Predicate;
+
 /**
  * users.staff
  * Created by NhatLinh - 19127652
@@ -15,9 +17,10 @@ import users.patient.PatientInformationPanel;
  */
 public class StaffViewPanel extends RecordViewPanel {
 
-    private final StaffInformationPanel informationPanel = new StaffInformationPanel();
-    public StaffViewPanel() {
+    private final StaffInformationPanel informationPanel;
+    public StaffViewPanel(Predicate<Staff> update) {
         super();
+        informationPanel =  new StaffInformationPanel(update);
         setMainSection(informationPanel);
     }
     @Override

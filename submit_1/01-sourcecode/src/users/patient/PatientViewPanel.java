@@ -5,6 +5,7 @@ import users.dao.DBRecord;
 import users.dao.Patient;
 
 import javax.swing.*;
+import java.util.function.Predicate;
 
 /**
  * users.patient
@@ -13,9 +14,10 @@ import javax.swing.*;
  * Description: ...
  */
 public class PatientViewPanel extends RecordViewPanel {
-    private final PatientInformationPanel informationPanel = new PatientInformationPanel();
-    public PatientViewPanel() {
+    private final PatientInformationPanel informationPanel;
+    public PatientViewPanel(Predicate<Patient> update) {
         super();
+        informationPanel = new PatientInformationPanel(update);
         setMainSection(informationPanel);
     }
     @Override

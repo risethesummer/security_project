@@ -4,10 +4,14 @@ import common.gui.table.cells.ButtonCell;
 import common.gui.table.cells.ICell;
 import common.gui.table.cells.LabelCell;
 import common.gui.table.row.IRow;
+import oracle.jdbc.proxy.annotation.Pre;
 import users.common.RecordListPanel;
 import users.dao.DBRecord;
 import users.dao.Document;
+import users.dao.DocumentService;
 
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -18,18 +22,22 @@ import java.util.function.Supplier;
  */
 public class DocumentListPanel extends RecordListPanel {
 
-    public DocumentListPanel(Supplier<Iterable<DBRecord>> handler) {
+    public DocumentListPanel(Supplier<Iterable<DBRecord>> handler,
+                             CreateDocumentServicePanel createDocumentServicePanel,
+                             Predicate<String> onDelDocument,
+                             BiPredicate<String, DocumentService> onDelService) {
         super(handler,
-                new DocumentViewPanel(),
+                new DocumentViewPanel(createDocumentServicePanel, onDelDocument, onDelService),
                 new ICell[]{
                     new LabelCell("Document ID"),
                     new LabelCell("Patient ID"),
                     new LabelCell("Date"),
                     new LabelCell("Diagnose"),
                     new LabelCell("Conclusion"),
-                    new ButtonCell("Details")
+                    new LabelCell("Details")
                 },
                 new String[] {"Document ID", "Patient ID"});
+
     }
 
     @Override

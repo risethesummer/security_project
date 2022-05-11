@@ -16,13 +16,14 @@ public abstract class SearchPanel extends JPanel {
     protected final JTextField inputField = new JTextField();
     //private final DefaultComboBoxModel<String> optionsModel = new DefaultComboBoxModel<>();
     protected final JComboBox<String> optionsCbb;
+    private final JPanel searchAndReloadSection;
 
     public SearchPanel(String[] options)
     {
         super(new BorderLayout());
         reloadBtn.addActionListener(e -> reload());
         optionsCbb = new JComboBox<>(options);
-        JPanel searchAndReloadSection = new JPanel(new GridLayout(2, 1));
+        searchAndReloadSection = new JPanel(new GridLayout(2, 1));
         JPanel searchSection = new JPanel(new BorderLayout());
         inputField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -47,9 +48,18 @@ public abstract class SearchPanel extends JPanel {
         add(searchAndReloadSection, BorderLayout.PAGE_START);
     }
 
+    public void addOrigin(Component mainSection)
+    {
+        setMainSection(mainSection);
+        add(searchAndReloadSection, BorderLayout.PAGE_START);
+        updateUI();
+    }
+
     public void setMainSection(Component mainSection)
     {
+        removeAll();
         add(mainSection, BorderLayout.CENTER);
+        updateUI();
     }
 
     protected abstract void reload();

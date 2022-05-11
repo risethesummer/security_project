@@ -1,5 +1,6 @@
 package users.staff;
 
+import common.gui.table.cells.ButtonCell;
 import common.gui.table.cells.ICell;
 import common.gui.table.cells.LabelCell;
 import common.gui.table.row.NColumnsPanel;
@@ -23,7 +24,7 @@ public class StaffRow extends NColumnsPanel {
                 new LabelCell(staff.sex().toString()),
                 new LabelCell(staff.dob().toString()),
                 new LabelCell(staff.role()),
-                new LabelCell("Details", callback)
+                new ButtonCell("Details", callback)
         });
         id = staff.id();
     }

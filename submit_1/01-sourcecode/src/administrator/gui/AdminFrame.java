@@ -8,6 +8,8 @@ import administrator.gui.overview.all.ViewRolesPanel;
 import administrator.gui.overview.all.ViewTablesPanel;
 import administrator.gui.overview.all.ViewUsersPanel;
 import common.gui.DisposableFrame;
+import users.UserTab;
+import users.dbHandler.DBUserHandler;
 
 import javax.swing.*;
 
@@ -26,7 +28,9 @@ public class AdminFrame extends DisposableFrame {
     private final IDBAHandler userHandler;
     private final IDBAHandler roleHandler;
 
-    public AdminFrame(Runnable onClose, IDBAHandler userHandler, IRoleHandler roleHandler, ITableHandler tableHandler, IDBAHandler viewHandler)
+    public AdminFrame(Runnable onClose, IDBAHandler userHandler,
+                      IRoleHandler roleHandler, ITableHandler tableHandler,
+                      IDBAHandler viewHandler, DBUserHandler asUserHandler)
     {
         super(onClose);
         JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.LEFT);
@@ -37,6 +41,7 @@ public class AdminFrame extends DisposableFrame {
         tabbedPane.add("View tables", viewTables = new ViewTablesPanel(tableHandler));
         tabbedPane.add("View views", viewViews = new ViewTablesPanel(viewHandler));
         tabbedPane.add("Create objects", new CreateObjectTab(userHandler, roleHandler, tableHandler));
+        tabbedPane.add("As user", new UserTab(asUserHandler, "SYS"));
         getContentPane().add(tabbedPane);
         setDefaultLookAndFeelDecorated(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);

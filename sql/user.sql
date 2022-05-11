@@ -159,7 +159,6 @@ CREATE TABLE C##QLKCB.HSBA_DV (
     MAKTV CHAR(6) NOT NULL,
     KETQUA NVARCHAR2(200),
     PRIMARY KEY (MAHSBA, MADV, NGAY),
-    
     CONSTRAINT PK_HSBADV PRIMARY KEY (MAHSBA, MADV, NGAY),
     CONSTRAINT FK_HSBADV_MAHSBA_HSBA FOREIGN KEY (MAHSBA) REFERENCES C##QLKCB.HSBA(MAHSBA),
     CONSTRAINT FK_HSBADV_MADV_DICHVU FOREIGN KEY (MADV) REFERENCES C##QLKCB.DICHVU(MADV),
@@ -167,7 +166,7 @@ CREATE TABLE C##QLKCB.HSBA_DV (
 );
 
 ALTER SESSION SET container = XEPDB1;
-CREATE TABLE C##QLKCB.THONGBAO (NOIDUNG VARCHAR2(500) NOT NULL, NGAYGIO DATE DEFAULT SYSDATE, DIADIEM VARCHAR2(200));
+CREATE TABLE C##QLKCB.THONGBAO (NOIDUNG NVARCHAR2(500) NOT NULL, NGAYGIO TIMESTAMP DEFAULT SYSDATE, DIADIEM VARCHAR2(200) NOT NULL);
 ALTER SESSION SET container = CDB$ROOT;
 
 /
@@ -286,49 +285,6 @@ BEGIN
     );
 END;
 /
-CREATE OR REPLACE PROCEDURE C##QLKCB.CHINHSUA_NHANVIEN_CMND (
-    MA_IN VARCHAR2, CMND VARCHAR2
-)
-IS
-    dec_key RAW(48) := NULL;
-    raw_cmnd RAW(16) := NULL;
-    pad char(4) := 'KEYP';
-    alg_grade       pls_integer := DBMS_CRYPTO.ENCRYPT_AES256
-                                   + DBMS_CRYPTO.CHAIN_CBC
-                                   + DBMS_CRYPTO.PAD_PKCS5;
-BEGIN
-    dec_key := c##apdsgvkyp3s5v8y.LAY_KEY(MA_IN, pad);
-    IF dec_key IS NOT NULL
-    THEN
-        raw_cmnd := DBMS_CRYPTO.ENCRYPT(src => UTL_RAW.CAST_TO_RAW(CMND),
-                                    TYP => alg_grade,
-                                    key => dec_key);
-        UPDATE C##QLKCB.NHANVIEN SET CMND = raw_cmnd WHERE MANV = MA_IN;
-    END IF;
-END;
-/
-CREATE OR REPLACE PROCEDURE C##QLKCB.CHINHSUA_BENHNHAN_CMND (
-    MA_IN VARCHAR2, CMND VARCHAR2
-)
-IS
-    dec_key RAW(48) := NULL;
-    raw_cmnd RAW(16) := NULL;
-    pad char(2) := 'KE';
-    alg_grade       pls_integer := DBMS_CRYPTO.ENCRYPT_AES256
-                                   + DBMS_CRYPTO.CHAIN_CBC
-                                   + DBMS_CRYPTO.PAD_PKCS5;
-BEGIN
-    dec_key := c##apdsgvkyp3s5v8y.LAY_KEY(MA_IN, pad);
-    IF dec_key IS NOT NULL
-    THEN
-        
-        raw_cmnd := DBMS_CRYPTO.ENCRYPT(src => UTL_RAW.CAST_TO_RAW(CMND),
-                                    TYP => alg_grade,
-                                    key => dec_key);
-        UPDATE C##QLKCB.BENHNHAN SET CMND = raw_cmnd WHERE MABN = MA_IN;
-    END IF;
-END;
-/
 INSERT INTO C##QLKCB.CSYT VALUES ('CS01', N'Cơ sở 1', 'Quan 1, TPHCM', '0901010101');
 INSERT INTO C##QLKCB.CSYT VALUES ('CS02', N'Cơ sở 2', 'Quan 2, TPHCM', '0902020202');
 INSERT INTO C##QLKCB.CSYT VALUES ('CS03', N'Cơ sở 3', 'Quan 3, TPHCM', '0903030303');
@@ -388,6 +344,7 @@ INSERT INTO C##QLKCB.HSBA VALUES ('HS000002', 'BN00002', sysdate, N'Bệnh viêm
 INSERT INTO C##QLKCB.HSBA VALUES ('HS000003', 'BN00003', sysdate, N'Đau nửa đầu', 'NV0010', 'K004', 'CS02', N'Ung thư não');
 INSERT INTO C##QLKCB.HSBA VALUES ('HS000004', 'BN00004', sysdate, N'Bệnh gout', 'NV0011', 'K003', 'CS02', N'Bị gout nhẹ');
 INSERT INTO C##QLKCB.HSBA VALUES ('HS000005', 'BN00001', sysdate, N'Tiểu đường', 'NV0012', 'K002', 'CS02', N'Tiểu đường trong thời kì mang thai');
+/
 SELECT * FROM C##QLKCB.HSBA;
 /
 INSERT INTO C##QLKCB.HSBA_DV VALUES ('HS000001', 'DV001', sysdate, 'NV0008', N'Bình thường');
@@ -397,6 +354,7 @@ INSERT INTO C##QLKCB.HSBA_DV VALUES ('HS000003', 'DV002', sysdate, 'NV0012', N'P
 INSERT INTO C##QLKCB.HSBA_DV VALUES ('HS000004', 'DV005', sysdate, 'NV0010', N'Tiến triển tốt');
 INSERT INTO C##QLKCB.HSBA_DV VALUES ('HS000005', 'DV001', sysdate, 'NV0014', N'Đường huyết cao');
 INSERT INTO C##QLKCB.HSBA_DV VALUES ('HS000005', 'DV004', sysdate, 'NV0015', N'Bình thường');
+/
 SELECT * FROM C##QLKCB.HSBA_DV;
 /
 CREATE OR REPLACE FUNCTION C##QLKCB.LAY_CMND_NHANVIEN (
@@ -426,8 +384,6 @@ BEGIN
     END IF;
 END;
 /
-
-
 CREATE OR REPLACE FUNCTION C##QLKCB.LAY_CMND_BENHNHAN (
     MA_IN VARCHAR2
 )
@@ -454,15 +410,25 @@ BEGIN
                                     key => dec_key));
     END IF;
 END;
+
 /
-
-COMMIT;
-
 -------------------------------------------------------------
 -- TC#1
 --View cho bệnh nhân
 CREATE OR REPLACE VIEW C##QLKCB.BENH_NHAN_XEM_BENH_NHAN AS
-SELECT bn.*
+SELECT 
+    bn.MABN AS MABN,
+    bn.TENBN AS TENBN,
+    bn.MACSYT AS MACSYT,
+    C##QLKCB.LAY_CMND_BENHNHAN(bn.MABN) AS CMND,
+    bn.NGAYSINH AS NGAYSINH,
+    bn.SONHA AS SONHA,
+    bn.TENDUONG AS TENDUONG,
+    bn.QUANHUYEN AS QUANHUYEN,
+    bn.TINHTP AS TINHTP,
+    bn.TIENSUBENH AS TIENSUBENH,
+    bn.TIENSUBENHGD AS TIENSUBENHGD,
+    bn.DIUNGTHUOC AS DIUNGTHUOC
 FROM C##QLKCB.BENHNHAN bn
 WHERE bn.USERNAME = SYS_CONTEXT('USERENV', 'SESSION_USER');
 /
@@ -472,13 +438,36 @@ GRANT CREATE SESSION TO C##BENHNHAN;
 /
 GRANT SELECT ON C##QLKCB.BENH_NHAN_XEM_BENH_NHAN TO C##BENHNHAN;
 /
-GRANT EXECUTE ON C##QLKCB.LAY_CMND_BENHNHAN TO C##BENHNHAN;
+CREATE OR REPLACE PROCEDURE C##QLKCB.CHINHSUA_BENHNHAN_CMND (
+    CMND VARCHAR2
+)
+IS
+    dec_key RAW(48) := NULL;
+    raw_cmnd RAW(16) := NULL;
+    pad char(2) := 'KE';
+    ma_bn CHAR(7);
+    alg_grade       pls_integer := DBMS_CRYPTO.ENCRYPT_AES256
+                                   + DBMS_CRYPTO.CHAIN_CBC
+                                   + DBMS_CRYPTO.PAD_PKCS5;
+BEGIN
+    SELECT MABN
+    INTO ma_bn
+    FROM C##QLKCB.BENH_NHAN_XEM_BENH_NHAN;
+    dec_key := c##apdsgvkyp3s5v8y.LAY_KEY(ma_bn, pad);
+    IF dec_key IS NOT NULL
+    THEN
+        
+        raw_cmnd := DBMS_CRYPTO.ENCRYPT(src => UTL_RAW.CAST_TO_RAW(CMND),
+                                    TYP => alg_grade,
+                                    key => dec_key);
+        UPDATE C##QLKCB.BENHNHAN SET CMND = raw_cmnd WHERE MABN = ma_bn;
+    END IF;
+END;
 /
 GRANT EXECUTE ON C##QLKCB.CHINHSUA_BENHNHAN_CMND TO C##BENHNHAN;
 /
 GRANT UPDATE(
     TENBN,
-    CMND,
     NGAYSINH,
     SONHA,
     TENDUONG,
@@ -504,6 +493,11 @@ BEGIN
 END;
 /
 EXEC SYS.create_user_for_table_benh_nhan;
+
+-------------------------------------
+------------------------------------
+----NHAN VIEN-----------------------
+-----------------------------------
 /
 CREATE OR REPLACE PROCEDURE SYS.grant_role_to_user_from_nhan_vien (
     roleIntable VARCHAR2,
@@ -517,10 +511,21 @@ BEGIN
     END LOOP;
 END;
 /
+
 --View cho nhân viên
 CREATE OR REPLACE VIEW C##QLKCB.NHAN_VIEN_XEM_NHAN_VIEN AS
-SELECT nv.*
-FROM NHANVIEN nv
+SELECT 
+    nv.MANV AS MANV,
+    nv.HOTEN AS HOTEN,
+    nv.PHAI AS PHAI,
+    C##QLKCB.LAY_CMND_NHANVIEN(nv.MANV) AS CMND,
+    nv.NGAYSINH AS NGAYSINH,
+    nv.QUEQUAN AS QUEQUAN,
+    nv.SODT AS SODT,
+    nv.MACSYT AS MACSYT,
+    nv.VAITRO AS VAITRO,
+    nv.CHUYENKHOA AS CHUYENKHOA
+FROM C##QLKCB.NHANVIEN nv
 WHERE nv.USERNAME = SYS_CONTEXT('USERENV', 'SESSION_USER');
 /
 CREATE ROLE C##NHANVIEN;
@@ -529,18 +534,42 @@ GRANT SELECT ON C##QLKCB.NHAN_VIEN_XEM_NHAN_VIEN TO C##NHANVIEN;
 /
 GRANT CREATE SESSION TO C##NHANVIEN;
 /
+GRANT SET CONTAINER to C##NHANVIEN container=all;
+/
 GRANT UPDATE(
     HOTEN,
     PHAI,
-    CMND,
     NGAYSINH,
     QUEQUAN,
     SODT
 ) ON C##QLKCB.NHAN_VIEN_XEM_NHAN_VIEN TO C##NHANVIEN;
 /
-GRANT EXECUTE ON C##QLKCB.CHINHSUA_NHANVIEN_CMND TO C##NHANVIEN;
+CREATE OR REPLACE PROCEDURE C##QLKCB.CHINHSUA_NHANVIEN_CMND (
+    CMND VARCHAR2
+)
+IS
+    dec_key RAW(48) := NULL;
+    raw_cmnd RAW(16) := NULL;
+    pad char(4) := 'KEYP';
+    alg_grade       pls_integer := DBMS_CRYPTO.ENCRYPT_AES256
+                                   + DBMS_CRYPTO.CHAIN_CBC
+                                   + DBMS_CRYPTO.PAD_PKCS5;
+    ma_nv CHAR(6);
+BEGIN
+    SELECT MANV
+    INTO ma_nv
+    FROM C##QLKCB.NHAN_VIEN_XEM_NHAN_VIEN;
+    dec_key := c##apdsgvkyp3s5v8y.LAY_KEY(ma_nv, pad);
+    IF dec_key IS NOT NULL
+    THEN
+        raw_cmnd := DBMS_CRYPTO.ENCRYPT(src => UTL_RAW.CAST_TO_RAW(CMND),
+                                    TYP => alg_grade,
+                                    key => dec_key);
+        UPDATE C##QLKCB.NHANVIEN SET CMND = raw_cmnd WHERE MANV = ma_nv;
+    END IF;
+END;
 /
-GRANT EXECUTE ON C##QLKCB.LAY_CMND_NHANVIEN TO C##NHANVIEN;
+GRANT EXECUTE ON C##QLKCB.CHINHSUA_NHANVIEN_CMND TO C##NHANVIEN;
 /
 CREATE OR REPLACE PROCEDURE SYS.create_user_for_table_nhan_vien
 AS n NUMBER;
@@ -554,34 +583,15 @@ BEGIN
         SELECT COUNT(*) INTO n FROM dba_users WHERE USERNAME = u.USERNAME;
         IF (n = 0) THEN
             EXECUTE IMMEDIATE ('CREATE USER '||u.USERNAME||' IDENTIFIED BY ' || u.USERNAME);
-			EXECUTE IMMEDIATE ('GRANT C##NHANVIEN TO ' || u.USERNAME);
             --EXECUTE IMMEDIATE ('GRANT CREATE SESSION TO '||u.USERNAME);
         END IF;
+        EXECUTE IMMEDIATE ('GRANT C##NHANVIEN TO ' || u.USERNAME);
     END LOOP;
 END;
 /
 EXEC SYS.create_user_for_table_nhan_vien;
 /
 -------------------------------------------------------------
--- TC#2;
---Cấp quyền SELECT trên tất cả các bảng cho thanh tra
-CREATE OR REPLACE PROCEDURE SYS.grant_select(
-    username VARCHAR2, 
-    grantee VARCHAR2)
-AS   
-BEGIN
-    FOR r IN (
-        SELECT owner, table_name 
-        FROM all_tables 
-        WHERE owner = username
-    )
-    LOOP
-        EXECUTE IMMEDIATE 
-            'GRANT SELECT ON '||r.owner||'.'||r.table_name||' to ' || grantee;
-    END LOOP;
-END;
-/
-------------
 --Thanh tra
 CREATE ROLE C##THANHTRA;
 /
@@ -589,11 +599,80 @@ EXEC SYS.grant_select('C##QLKCB', 'C##THANHTRA');
 /
 EXEC SYS.grant_role_to_user_from_nhan_vien(N'Thanh tra', 'C##THANHTRA');
 /
-GRANT EXECUTE ON C##QLKCB.LAY_CMND_BENHNHAN TO C##THANHTRA;
+CREATE OR REPLACE VIEW C##QLKCB.THANH_TRA_XEM_BENH_NHAN AS
+SELECT 
+    bn.MABN AS MABN,
+    bn.TENBN AS TENBN,
+    bn.MACSYT AS MACSYT,
+    C##QLKCB.LAY_CMND_BENHNHAN(bn.MABN) AS CMND,
+    bn.NGAYSINH AS NGAYSINH,
+    bn.SONHA AS SONHA,
+    bn.TENDUONG AS TENDUONG,
+    bn.QUANHUYEN AS QUANHUYEN,
+    bn.TINHTP AS TINHTP,
+    bn.TIENSUBENH AS TIENSUBENH,
+    bn.TIENSUBENHGD AS TIENSUBENHGD,
+    bn.DIUNGTHUOC AS DIUNGTHUOC
+FROM C##QLKCB.BENHNHAN bn;
+/
+CREATE OR REPLACE VIEW C##QLKCB.THANH_TRA_XEM_NHAN_VIEN AS
+SELECT 
+    nv.MANV AS MANV,
+    nv.HOTEN AS HOTEN,
+    nv.PHAI AS PHAI,
+    C##QLKCB.LAY_CMND_NHANVIEN(nv.MANV) AS CMND,
+    nv.NGAYSINH AS NGAYSINH,
+    nv.QUEQUAN AS QUEQUAN,
+    nv.SODT AS SODT,
+    nv.MACSYT AS MACSYT,
+    nv.VAITRO AS VAITRO,
+    nv.CHUYENKHOA AS CHUYENKHOA
+FROM C##QLKCB.NHANVIEN nv;
+/
+GRANT SELECT ON C##QLKCB.THANH_TRA_XEM_NHAN_VIEN TO C##THANHTRA;
+/
+GRANT SELECT ON C##QLKCB.THANH_TRA_XEM_BENH_NHAN TO C##THANHTRA;
+/
+GRANT SELECT ON C##QLKCB.HSBA TO C##THANHTRA;
+/
+GRANT SELECT ON C##QLKCB.HSBA_DV TO C##THANHTRA;
+/
+GRANT SELECT ON C##QLKCB.CSYT TO C##THANHTRA;
 /
 -------------
 --Cơ sở y tế
 CREATE ROLE C##COSOYTE;
+/
+CREATE OR REPLACE VIEW C##QLKCB.DICH_VU_IDS
+AS
+SELECT dv.MADV
+FROM C##QLKCB.DICHVU dv;
+/
+CREATE OR REPLACE VIEW C##QLKCB.NHAN_VIEN_IDS
+AS
+SELECT nv.MANV
+FROM C##QLKCB.NHANVIEN nv;
+/
+CREATE OR REPLACE VIEW C##QLKCB.BENH_NHAN_IDS
+AS
+SELECT bn.MABN
+FROM C##QLKCB.BENHNHAN bn;
+/
+CREATE OR REPLACE VIEW C##QLKCB.BAC_SI_IDS
+AS
+SELECT nv.MANV
+FROM C##QLKCB.NHANVIEN nv
+WHERE nv.VAITRO = N'Y/Bác sĩ';
+/
+CREATE OR REPLACE VIEW C##QLKCB.KHOA_IDS
+AS
+SELECT k.MAKHOA
+FROM C##QLKCB.KHOA k;
+/
+CREATE OR REPLACE VIEW C##QLKCB.CSYT_IDS
+AS
+SELECT cs.MACSYT
+FROM C##QLKCB.CSYT cs;
 /
 GRANT SELECT, DELETE, INSERT ON C##QLKCB.HSBA TO C##COSOYTE;
 /
@@ -604,10 +683,22 @@ EXEC SYS.grant_role_to_user_from_nhan_vien(N'Cơ sở y tế', 'C##COSOYTE');
 ----------
 --Bác sĩ
 CREATE OR REPLACE VIEW C##QLKCB.VIEW_BAC_SI_XEM_BENH_NHAN AS
-SELECT bn.*
-FROM BENHNHAN bn
-	JOIN HSBA hsba ON hsba.MABN = bn.MABN
-	JOIN NHANVIEN nv ON hsba.MABS = nv.MANV
+SELECT
+    bn.MABN,
+    bn.TENBN,
+    bn.MACSYT,
+    C##QLKCB.LAY_CMND_BENHNHAN(bn.MABN) AS CMND,
+    bn.NGAYSINH,
+    bn.SONHA,
+    bn.TENDUONG,
+    bn.QUANHUYEN,
+    bn.TINHTP,
+    bn.TIENSUBENH,
+    bn.TIENSUBENHGD,
+    bn.DIUNGTHUOC
+FROM C##QLKCB.BENHNHAN bn
+	JOIN C##QLKCB.HSBA hsba ON hsba.MABN = bn.MABN
+	JOIN C##QLKCB.NHANVIEN nv ON hsba.MABS = nv.MANV
 WHERE nv.USERNAME = SYS_CONTEXT('USERENV', 'SESSION_USER');
 /
 CREATE ROLE C##BACSI;
@@ -617,8 +708,6 @@ GRANT SELECT ON C##QLKCB.HSBA TO C##BACSI;
 GRANT SELECT ON C##QLKCB.HSBA_DV TO C##BACSI;
 /
 GRANT SELECT ON C##QLKCB.VIEW_BAC_SI_XEM_BENH_NHAN TO C##BACSI;
-/
-GRANT EXECUTE ON C##QLKCB.LAY_CMND_BENHNHAN TO C##BACSI;
 /
 EXEC SYS.grant_role_to_user_from_nhan_vien(N'Y/Bác sĩ', 'C##BACSI');
 /
@@ -633,6 +722,8 @@ GRANT SELECT ON C##QLKCB.HSBA_DV TO C##NGHIENCUU;
 EXEC SYS.grant_role_to_user_from_nhan_vien(N'Nghiên cứu', 'C##NGHIENCUU');
 /
 --Vị từ VPD cho bảng HSBA
+--GRANT EXECUTE ON C##QLKCB.LAY_VI_TU_TREN_HSBA TO C##NHANVIEN;
+--GRANT EXECUTE ON C##QLKCB.LAY_VI_TU_TREN_HSBA_DV TO C##NHANVIEN;
 CREATE OR REPLACE FUNCTION C##QLKCB.LAY_VI_TU_TREN_HSBA (
     schema_name     IN VARCHAR2 DEFAULT NULL,
     object_name     IN VARCHAR2 DEFAULT NULL)
@@ -646,7 +737,7 @@ AS
 BEGIN
 	IF SYS_CONTEXT('userenv', 'ISDBA') = 'TRUE'
 	THEN
-		RETURN 'TRUE';
+		RETURN '1 = 1';
 	END IF;
 
     SELECT MANV, VAITRO, MACSYT, CHUYENKHOA
@@ -656,28 +747,31 @@ BEGIN
     
     IF ma_nv IS NULL
     THEN
-        RETURN 'FALSE';
+        RETURN '1 = 0';
     END IF;
     
 	IF vai_tro = N'Thanh tra'
 	THEN 
-		RETURN 'TRUE';
+		RETURN '1 = 1';
 	END IF;
     --“Thanh tra”, “Cơ sở y tế”, “Y sĩ/bác sĩ”, “Nghiên cứu”.
     IF vai_tro = N'Cơ sở y tế'
     THEN
-		RETURN ('MACSYT = ' || ma_csyt || ' AND TO_NUMBER(TO_CHAR(NGAY, ''DD'')) > 4 AND TO_NUMBER(TO_CHAR(NGAY, ''DD'')) < 28');
+		RETURN ('MACSYT = ''' || ma_csyt || ''' AND TO_NUMBER(TO_CHAR(NGAY, ''DD'')) > 4 AND TO_NUMBER(TO_CHAR(NGAY, ''DD'')) < 28 ' || 
+        'AND to_char(NGAY, ''mm'') = to_char(sysdate, ''mm'') AND to_char(NGAY, ''yyyy'') = to_char(sysdate, ''yyyy'')');
     END IF;
     
     IF vai_tro = N'Y/Bác sĩ'
     THEN
-        RETURN ('MABS = ' || ma_nv);
+        RETURN ('MABS = ''' || ma_nv || '''');
     END IF;
     
     IF vai_tro = N'Nghiên cứu'
     THEN
-        RETURN ('MACSYT = ' || ma_csyt || ' AND MAKHOA = ' || ma_khoa);
+        RETURN ('MACSYT = ''' || ma_csyt || ''' AND MAKHOA = ''' || ma_khoa || '''');
     END IF;
+    
+    RETURN '1 = 0';
 END;
 /
 --Vị từ VPD cho bảng HSBA_DV
@@ -696,7 +790,7 @@ BEGIN
 
 	IF SYS_CONTEXT('userenv', 'ISDBA') = 'TRUE'
 	THEN
-		RETURN 'TRUE';
+		RETURN '1 = 1';
 	END IF;
 	
     SELECT MANV, VAITRO, MACSYT, CHUYENKHOA
@@ -706,32 +800,35 @@ BEGIN
     
     IF ma_nv IS NULL
     THEN
-        RETURN 'FALSE';
+        RETURN '1 = 0';
     END IF;
     
 	IF vai_tro = N'Thanh tra'
 	THEN 
-		RETURN 'TRUE';
+		RETURN '1 = 1';
 	END IF;
 	
     --“Thanh tra”, “Cơ sở y tế”, “Y sĩ/bác sĩ”, “Nghiên cứu”.
     IF vai_tro = N'Cơ sở y tế'
     THEN
-		RETURN ('IF EXISTS (SELECT hsba.MAHSBA FROM HSBA hsba WHERE hsba.MAHSBA = HSBA_DV.MAHSBA AND hsba.MACSYT = ' || ma_csyt ||
-				' AND TO_NUMBER(TO_CHAR(HSBA_DV.NGAY, ''DD'')) > 4 AND TO_NUMBER(TO_CHAR(HSBA_DV.NGAY, ''DD'')) < 28)');
+		RETURN ('to_char(NGAY, ''mm'') = to_char(sysdate, ''mm'') AND to_char(NGAY, ''yyyy'') = to_char(sysdate, ''yyyy'') ' ||
+                'AND TO_NUMBER(TO_CHAR(HSBA_DV.NGAY, ''DD'')) > 4 AND TO_NUMBER(TO_CHAR(HSBA_DV.NGAY, ''DD'')) < 28 ' ||
+                'AND EXISTS (SELECT hsba.MAHSBA FROM C##QLKCB.HSBA hsba WHERE hsba.MAHSBA = C##QLKCB.HSBA_DV.MAHSBA AND hsba.MACSYT = ''' || ma_csyt || ''')');
         
     END IF;
     
     IF vai_tro = N'Y/Bác sĩ'
     THEN
-        RETURN ('IF EXISTS (SELECT hsba.MAHSBA FROM HSBA hsba WHERE hsba.MAHSBA = HSBA_DV.MAHSBA AND hsba.MABS = ' || ma_nv || ')');
+        RETURN ('EXISTS (SELECT hsba.MAHSBA FROM C##QLKCB.HSBA hsba WHERE hsba.MAHSBA = C##QLKCB.HSBA_DV.MAHSBA AND hsba.MABS = ''' || ma_nv || ''')');
     END IF;
     
     IF vai_tro = N'Nghiên cứu'
     THEN
-		RETURN ('IF EXISTS (SELECT hsba.MAHSBA FROM HSBA hsba WHERE hsba.MAHSBA = HSBA_DV.MAHSBA AND hsba.MACSYT = ' || ma_csyt ||
-		' AND hsba.MAKHOA = ' || ma_khoa || ')');
+		RETURN ('EXISTS (SELECT hsba.MAHSBA FROM C##QLKCB.HSBA hsba WHERE hsba.MAHSBA = C##QLKCB.HSBA_DV.MAHSBA AND hsba.MACSYT = ''' || ma_csyt ||
+		''' AND hsba.MAKHOA = ''' || ma_khoa || ''')');
     END IF;
+    
+    RETURN '1 = 0';
 END;
 /
 BEGIN
@@ -751,16 +848,64 @@ BEGIN
         policy_function => 'LAY_VI_TU_TREN_HSBA_DV',
         statement_types => 'SELECT,INSERT,DELETE',
         update_check    => TRUE);
+    COMMIT;
 END;
-SELECT * FROM dba_policies;
+/
+CREATE OR REPLACE PROCEDURE SYS.LAY_VAI_TRO (
+    vai_tro     OUT NVARCHAR2)
+IS
+    dem_bn      INT := 0;
+    currentUser VARCHAR(128) := SYS_CONTEXT('userenv', 'SESSION_USER');
+BEGIN
+    IF SYS_CONTEXT('userenv', 'ISDBA') = 'TRUE'
+	THEN
+		vai_tro := 'SYS';
+        RETURN;
+	END IF;
+    
+    SELECT COUNT(bn.MABN)
+    INTO dem_bn
+    FROM C##QLKCB.BENH_NHAN_XEM_BENH_NHAN bn;
+    
+    IF dem_bn > 0
+    THEN
+        vai_tro := 'BN';
+        RETURN;
+    END IF;
+    
+    SELECT nv.VAITRO
+    INTO vai_tro
+    FROM C##QLKCB.NHAN_VIEN_XEM_NHAN_VIEN nv;
+    
+    IF vai_tro IS NOT NULL
+    THEN
+        RETURN;
+    END IF;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        vai_tro := NULL;
+END;
+/
+GRANT EXECUTE ON SYS.LAY_VAI_TRO TO C##BENHNHAN;
+/
+GRANT EXECUTE ON SYS.LAY_VAI_TRO TO C##NHANVIEN;
 
-
+/
+--SELECT * FROM dba_policies;
 --OLS
 EXEC LBACSYS.CONFIGURE_OLS;
 EXEC LBACSYS.OLS_ENFORCEMENT.ENABLE_OLS;
 GRANT INHERIT PRIVILEGES ON USER SYS TO LBACSYS;
 ALTER USER LBACSYS ACCOUNT UNLOCK IDENTIFIED BY password;
+GRANT SELECT ON C##QLKCB.THONGBAO TO C##NHANVIEN;
 ALTER SESSION SET container = XEPDB1;
+/
+--SELECT * FROM C##QLKCB.THONGBAO;
+--SELECT * FROM ALL_SA_TABLE_POLICIES;
+--SELECT * FROM ALL_SA_USERS;
+--SELECT * FROM DBA_SA_LABELS;
+--SELECT * FROM DBA_SA_LEVELS;
 
 BEGIN
 	--Tạo chính sách
@@ -821,7 +966,6 @@ BEGIN
 		short_name     => 'nt',
 		group_num      => 120);
 		
-	--Tạo level cho nhân viên
 	--Mọi y bác sĩ
 	sa_label_admin.create_label
 		(policy_name    => 'emp_ols_pol',
@@ -841,12 +985,12 @@ BEGIN
 	sa_label_admin.create_label
 		(policy_name    => 'emp_ols_pol',
 		label_tag      => 320,
-		label_value    => 'GDSYT');
+		label_value    => 'GDCSYT');
 	--Giám đốc csyt nội, ngoại ở trung tâm
 	sa_label_admin.create_label
 		(policy_name    => 'emp_ols_pol',
 		label_tag      => 330,
-		label_value    => 'GDSYT:noi,ngoai:tt');
+		label_value    => 'GDCSYT:noi,ngoai:tt');
 	--Mọi giám đốc sở
 	sa_label_admin.create_label
 		(policy_name    => 'emp_ols_pol',
@@ -864,6 +1008,68 @@ EXCEPTION
         ROLLBACK;
 END;    
 
+/
+INSERT INTO C##QLKCB.THONGBAO
+VALUES ('A notification to YBS', SYSTIMESTAMP, 'Department 1', CHAR_TO_LABEL('emp_ols_pol', 'YBS'));
+
+INSERT INTO C##QLKCB.THONGBAO
+VALUES ('A notification to YBS:noi,ngoai:ctt,tt', SYSTIMESTAMP, 'Department 1', CHAR_TO_LABEL('emp_ols_pol', 'YBS:noi,ngoai:ctt,tt'));
+
+INSERT INTO C##QLKCB.THONGBAO
+VALUES ('A notification to YBS:noi,sau:tt', SYSTIMESTAMP, 'Department 1', CHAR_TO_LABEL('emp_ols_pol', 'YBS:noi,sau:tt'));
+
+INSERT INTO C##QLKCB.THONGBAO
+VALUES ('A notification GDCSYT:noi,ngoai:tt', SYSTIMESTAMP, 'Department 1', CHAR_TO_LABEL('emp_ols_pol', 'GDCSYT:noi,ngoai:tt'));
+
+INSERT INTO C##QLKCB.THONGBAO
+VALUES ('A notification to GDCSYT', SYSTIMESTAMP, 'Department 3', CHAR_TO_LABEL('emp_ols_pol', 'GDCSYT'));
+
+INSERT INTO C##QLKCB.THONGBAO
+VALUES ('A notification to GDS', SYSTIMESTAMP, 'Department 1', CHAR_TO_LABEL('emp_ols_pol', 'GDS'));
+/
+CREATE OR REPLACE PROCEDURE SYS.SET_USER_LABEL_COMPONENTS (
+	user_name_in	VARCHAR2,
+	level_in		VARCHAR2,
+    compartment_in  VARCHAR2 DEFAULT NULL,
+    group_in        VARCHAR2 DEFAULT NULL)
+AS
+BEGIN
+    SA_USER_ADMIN.SET_LEVELS (
+        policy_name     => 'emp_ols_pol',
+        user_name       => user_name_in,
+        max_level       => level_in);
+        
+    IF compartment_in IS NOT NULL
+    THEN
+        SA_USER_ADMIN.SET_COMPARTMENTS (
+            policy_name     => 'emp_ols_pol',
+            user_name       => user_name_in,
+            read_comps      => compartment_in);
+    END IF;
+    
+    IF group_in IS NOT NULL
+    THEN
+        SA_USER_ADMIN.SET_GROUPS (
+            policy_name     => 'emp_ols_pol',
+            user_name       => user_name_in,
+            read_groups     => group_in);
+    END IF;
+END;
+/
+BEGIN
+    SYS.SET_USER_LABEL_COMPONENTS('C##NHANVIEN', 'YBS');
+END;
+BEGIN
+    SYS.SET_USER_LABEL_COMPONENTS('C##NV0008', 'YBS');
+    SYS.SET_USER_LABEL_COMPONENTS('C##NV0009', 'YBS', 'noi,ngoai', 'ctt');
+    SYS.SET_USER_LABEL_COMPONENTS('C##NV0010', 'YBS', 'noi,ngoai,sau', 'tt');
+    SYS.SET_USER_LABEL_COMPONENTS('C##NV0004', 'GDCSYT', 'noi', 'tt');
+    SYS.SET_USER_LABEL_COMPONENTS('C##NV0005', 'GDCSYT', 'noi,ngoai', 'nt');
+    SYS.SET_USER_LABEL_COMPONENTS('C##NV0006', 'GDCSYT', 'noi,ngoai,sau', 'ctt,tt');
+    SYS.SET_USER_LABEL_COMPONENTS('C##NV0001', 'GDS', NULL, 'nt');
+    SYS.SET_USER_LABEL_COMPONENTS('C##NV0002', 'GDS', 'ngoai,noi,sau', 'tt');
+END;
+/
 CREATE OR REPLACE PROCEDURE SYS.SET_USER_LABEL (
 	user_name_in	VARCHAR2,
 	label_in		VARCHAR2)
@@ -874,7 +1080,7 @@ BEGIN
 		user_name       => user_name_in,
 		max_read_label 	=> label_in);
 END;
-
+/
 CREATE OR REPLACE PROCEDURE SYS.SET_READ_WRITE_USER_LABEL (
 	user_name_in		VARCHAR2,
 	max_read_label_in	VARCHAR2,
